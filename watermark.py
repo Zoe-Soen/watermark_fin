@@ -56,7 +56,8 @@ class ImageViewBox(ttkbootstrap.Canvas):
         if self.im_vs_watermark is None:
             img_copy = self.resized_im.copy() 
         else:
-            img_copy = self.im_vs_watermark.copy()   
+            img_copy = self.im_vs_watermark.copy() 
+
             self.logo.selected_pos = self.watermark.selected_pos
             self.selected_pos = self.watermark.positions[0]
             self.x, self.y = 0, 0
@@ -112,7 +113,7 @@ class ImageViewBox(ttkbootstrap.Canvas):
             self.watermark.opacity = 255
             self.watermark.color = self.watermark.color_list[0]['hex'] # black
             self.watermark.rotation = 0
-            self.watermark.selected_pos = self.watermark.positions[3]
+            self.watermark.selected_pos = self.watermark.positions[0]
         elif obj == 'logo':
             self.logo.logo_im = None
 
