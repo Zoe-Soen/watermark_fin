@@ -1,4 +1,4 @@
-# 参考案例：https://watermarkly.com/
+# Sample：https://watermarkly.com/
 
 from tkinter import Button, Image, messagebox, END
 import tkinter as tk
@@ -110,17 +110,17 @@ class AddTextMenu(ttkbootstrap.Frame):
         if self.watermark.text == 'Your Text':
             response = messagebox.askokcancel('Confirmation', f'The current watermark text:\n {self.watermark.text}\n')
             if response is True:
-                self.sub_win.destroy()
+                self.kill_win()
             else:
                 return
         elif self.watermark.text == '':
             response = messagebox.showwarning("Warning", "The watermark text is empty.\nDo you want to go ahead?")
             if response is True:
-                self.sub_win.destroy()
+                self.kill_win()
             else: 
                 return
         else:
-            self.sub_win.destroy()
+            self.kill_win()
 
     # --------------------------------------------------------------
     def save(self):
@@ -196,13 +196,18 @@ class AddLogoMenu(ttkbootstrap.Frame):
     def clear(self):
         self.kill_win()
         self.photo_box.remove('logo')
+        self.create_new_add_logo_menu()
         self.photo_box.update_logo()
 
     # --------------------------------------------------------------
     def confirm_change(self):
-        response = messagebox.askokcancel('Confirmation', f'Save Image with logo?')
+        if self.photo_box.logo.logo_im is not None:
+            response = messagebox.askokcancel('Confirmation', f'Save Image with logo?')
+        else:
+            response = messagebox.showwarning("Warning", "There's no LOGO added.\nAre you want to go ahead?")
+
         if response is True:
-            self.sub_win.destroy()
+            self.kill_win()
         else:
             return
 
