@@ -1,4 +1,5 @@
 # Sample：https://watermarkly.com/
+# Repository URL on Github: https://github.com/Zoe-Soen/watermark_fin.git
 
 from tkinter import filedialog as fd
 import ttkbootstrap
@@ -23,21 +24,19 @@ def open_file():
         main_frm.grid()
         photo_box.update_photo(file_name)
         photo_box.grid(row=0, column=0, padx=photo_box.new_padx, pady=photo_box.new_pady, sticky=NSEW) 
-        back_btn.configure(state=NORMAL)
+        remove_btn.configure(state=NORMAL)
 
-def go_back():
-    main_frm.grid_remove()
-    photo_box.remove(obj='watermark')
-    photo_box.remove(obj='logo')
-    add_text_menu.kill_win()
-    top_frm.grid()
+def reselect_file():
+    global watermark, logo
+    photo_box.im_vs_watermark = None
+    photo_box.im_vs_logo = None
+    open_file()
     add_text_btn.configure(state=NORMAL)
 
 def open_add_text_menu():
     add_text_menu.create_new_add_text_menu()
     add_text_menu.on_text_change(add_text_menu.text_entry.sv)
     save_btn.configure(state=NORMAL)
-    add_text_btn.configure(state=DISABLED)
     add_text_menu.sub_win.protocol('WM_DELETE_WINDOW', add_text_menu.kill_win)
 
 def open_logo():
@@ -52,12 +51,38 @@ def open_logo():
         logo.open_logo(file_name)
         add_logo_menu.create_new_add_logo_menu()
         add_logo_menu.on_position_set()
-        add_Logo_btn.configure(state=DISABLED)
         add_logo_menu.sub_win.protocol('WM_DELETE_WINDOW', add_logo_menu.kill_win)
+        remove_btn.configure(state=NORMAL)
+
+def remove():
+    photo_box.im_vs_logo = None
+    photo_box.im_vs_watermark = None
+    if add_text_menu.sub_win is not None:
+        photo_box.remove('watermark')
+        photo_box.update_watermark()
+        watermark.text = 'Your Text'
+    elif add_logo_menu.sub_win is not None:
+        photo_box.remove('logo')
+        photo_box.update_logo()
+    elif add_text_menu.sub_win is None and add_logo_menu.sub_win is None:
+        remove_btn.configure(state=DISABLED)
 
 def save_image():
     photo_box.save()
     save_btn.configure(state=DISABLED)
+    response = messagebox.askquestion(
+        message=f'Image with watermark has been saved!\nGo to edit a new one?', 
+        icon='question',
+        type=messagebox.YESNOCANCEL)
+    if response == 'yes':
+        add_logo_menu.sub_win.destroy()
+        add_text_menu.clear()
+        add_logo_menu.clear()
+        open_file()
+    elif response == 'no':
+        app.quit()
+    else:
+        return
 
 
 # ====================================================================================
@@ -89,9 +114,9 @@ main_frm.grid_remove()
 menu_frm = ttkbootstrap.Frame(main_frm)
 menu_frm.grid(row=0, column=0, padx=50, pady=(50,0), sticky=NSEW)
 
-back_btn = ttkbootstrap.Button(menu_frm, text='< Back', width=12, bootstyle=LIGHT, command=go_back, state=DISABLED)
-back_btn.grid(row=0, column=0, sticky=W)
-save_btn = ttkbootstrap.Button(menu_frm, text='Save Image >', width=12, bootstyle=PRIMARY, command=save_image, state=DISABLED)
+open_btn = ttkbootstrap.Button(menu_frm, text='Select File', width=12, bootstyle=LIGHT, command=reselect_file, state=NORMAL)
+open_btn.grid(row=0, column=0, sticky=W)
+save_btn = ttkbootstrap.Button(menu_frm, text='Save Image', width=12, bootstyle=PRIMARY, command=save_image, state=DISABLED)
 save_btn.grid(row=0, column=2, sticky=E)
 
 menu_frm2 = ttkbootstrap.Frame(menu_frm)
@@ -101,7 +126,7 @@ add_text_btn = ttkbootstrap.Button(menu_frm2, text='Add Text', width=12, command
 add_text_btn.grid(row=0, column=0, padx=(0,5), sticky=NSEW)
 add_Logo_btn = ttkbootstrap.Button(menu_frm2, text='Add Logo', width=12, command=open_logo, bootstyle=INFO)
 add_Logo_btn.grid(row=0, column=1, padx=5, sticky=NSEW)
-remove_btn = ttkbootstrap.Button(menu_frm2, text='Remove', width=12, bootstyle=SECONDARY, state=DISABLED)
+remove_btn = ttkbootstrap.Button(menu_frm2, text='Remove', width=12, command=remove, bootstyle=SECONDARY, state=DISABLED)
 remove_btn.grid(row=0, column=2, padx=(5,0), sticky=NSEW)
 
 center_frm = ttkbootstrap.Frame(main_frm, border=True, borderwidth=3, relief='solid')
